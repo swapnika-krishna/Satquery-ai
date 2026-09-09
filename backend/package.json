@@ -4,17 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "start": "node server.js"
-},
+    "start": "node server.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@google/earthengine": "^1.7.43",
     "@google/genai": "^2.21.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "google-auth-library": "^11.0.2",
     "multer": "^2.3.0"
   }
 }
