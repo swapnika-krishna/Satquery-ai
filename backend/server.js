@@ -20,6 +20,12 @@ const db = await mysql.createPool({
 console.log("MySQL connected successfully.");
 console.log("API key loaded:", !!process.env.GEMINI_API_KEY);
 const app = express();
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "SatQuery AI backend is running"
+  });
+});
 setInterval(() => {}, 1000);
 app.use(cors());
 app.use(express.json());
