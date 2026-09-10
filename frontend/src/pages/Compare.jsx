@@ -22,14 +22,15 @@ function Compare() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
-  const [latitude, setLatitude] = useState("16.30");
-const [longitude, setLongitude] = useState("80.44");
-const [startDate, setStartDate] = useState("2024-01-01");
-const [endDate, setEndDate] = useState("2024-02-01");
 
-const [indices, setIndices] = useState(null);
-const [indicesLoading, setIndicesLoading] = useState(false);
-const [indicesError, setIndicesError] = useState("");
+  const [latitude, setLatitude] = useState("16.30");
+  const [longitude, setLongitude] = useState("80.44");
+  const [startDate, setStartDate] = useState("2024-01-01");
+  const [endDate, setEndDate] = useState("2024-02-01");
+
+  const [indices, setIndices] = useState(null);
+  const [indicesLoading, setIndicesLoading] = useState(false);
+  const [indicesError, setIndicesError] = useState("");
 
   const handleImage1 = (e) => {
     const file = e.target.files[0];
@@ -70,30 +71,32 @@ const [indicesError, setIndicesError] = useState("");
       );
 
       const response = await axios.post(
-        "http://localhost:5000/api/compare",
+        "https://satquery-ai-ep5o.onrender.com/api/compare",
         formData
       );
 
       setAnswer(response.data.answer);
     } catch (error) {
-      console.error(error);
+      console.error("Comparison error:", error);
 
       setAnswer(
         error.response?.data?.error ||
+          error.message ||
           "Unable to compare the images. Please try again."
       );
     } finally {
       setLoading(false);
     }
   };
-    const handleRemoteSensing = async () => {
+
+  const handleRemoteSensing = async () => {
     setIndicesLoading(true);
     setIndices(null);
     setIndicesError("");
 
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/indices",
+        "https://satquery-ai-ep5o.onrender.com/api/indices",
         {
           params: {
             lat: latitude,
@@ -104,7 +107,13 @@ const [indicesError, setIndicesError] = useState("");
         }
       );
 
-      setIndices(response.data.indices);
+      if (response.data.success) {
+        setIndices(response.data.indices);
+      } else {
+        setIndicesError(
+          response.data.error || "Remote sensing analysis failed."
+        );
+      }
     } catch (error) {
       console.error("Remote sensing error:", error);
 
@@ -118,12 +127,12 @@ const [indicesError, setIndicesError] = useState("");
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white">
-<SatelliteBackground video="compare.mp4" />
-      {/* Navbar */}
-      <nav className="border-b border-slate-800 bg-[#020617]">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div className="relative min-h-screen bg-transparent text-white">
+      <SatelliteBackground video="compare.mp4" />
 
+      {/* Navbar */}
+      <nav className="relative z-10 border-b border-slate-800 bg-[#020617]/95">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-400/20">
               <Satellite className="w-6 h-6 text-cyan-400" />
@@ -141,16 +150,13 @@ const [indicesError, setIndicesError] = useState("");
             <ArrowLeft size={17} />
             Dashboard
           </Link>
-
         </div>
       </nav>
 
       {/* Main */}
-      <main className="max-w-7xl mx-auto px-6 py-12">
-
+      <main className="relative z-10 max-w-7xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="mb-10">
-
           <div className="flex items-center gap-3 mb-4">
             <div className="p-3 rounded-xl bg-purple-500/10">
               <GitCompare className="w-6 h-6 text-purple-400" />
@@ -166,15 +172,12 @@ const [indicesError, setIndicesError] = useState("");
               </p>
             </div>
           </div>
-
         </div>
 
         {/* Upload Section */}
         <div className="grid lg:grid-cols-2 gap-6">
-
           {/* Image 1 */}
           <div className="bg-[#0b1224] border border-slate-800 rounded-2xl p-6">
-
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h2 className="text-lg font-semibold">
@@ -196,7 +199,6 @@ const [indicesError, setIndicesError] = useState("");
               className="block cursor-pointer"
             >
               <div className="h-80 border-2 border-dashed border-slate-700 hover:border-cyan-400/50 rounded-xl flex items-center justify-center overflow-hidden transition">
-
                 {preview1 ? (
                   <img
                     src={preview1}
@@ -205,7 +207,6 @@ const [indicesError, setIndicesError] = useState("");
                   />
                 ) : (
                   <div className="text-center">
-
                     <div className="mx-auto w-16 h-16 rounded-full bg-cyan-500/10 flex items-center justify-center mb-4">
                       <Upload className="w-7 h-7 text-cyan-400" />
                     </div>
@@ -217,10 +218,8 @@ const [indicesError, setIndicesError] = useState("");
                     <p className="text-sm text-slate-500 mt-2">
                       PNG, JPG or JPEG
                     </p>
-
                   </div>
                 )}
-
               </div>
             </label>
 
@@ -231,12 +230,10 @@ const [indicesError, setIndicesError] = useState("");
               onChange={handleImage1}
               className="hidden"
             />
-
           </div>
 
           {/* Image 2 */}
           <div className="bg-[#0b1224] border border-slate-800 rounded-2xl p-6">
-
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h2 className="text-lg font-semibold">
@@ -258,7 +255,6 @@ const [indicesError, setIndicesError] = useState("");
               className="block cursor-pointer"
             >
               <div className="h-80 border-2 border-dashed border-slate-700 hover:border-purple-400/50 rounded-xl flex items-center justify-center overflow-hidden transition">
-
                 {preview2 ? (
                   <img
                     src={preview2}
@@ -267,7 +263,6 @@ const [indicesError, setIndicesError] = useState("");
                   />
                 ) : (
                   <div className="text-center">
-
                     <div className="mx-auto w-16 h-16 rounded-full bg-purple-500/10 flex items-center justify-center mb-4">
                       <Upload className="w-7 h-7 text-purple-400" />
                     </div>
@@ -279,10 +274,8 @@ const [indicesError, setIndicesError] = useState("");
                     <p className="text-sm text-slate-500 mt-2">
                       PNG, JPG or JPEG
                     </p>
-
                   </div>
                 )}
-
               </div>
             </label>
 
@@ -293,14 +286,11 @@ const [indicesError, setIndicesError] = useState("");
               onChange={handleImage2}
               className="hidden"
             />
-
           </div>
-
         </div>
 
         {/* Question */}
         <div className="mt-8 bg-[#0b1224] border border-slate-800 rounded-2xl p-6">
-
           <div className="flex items-center gap-3 mb-5">
             <Sparkles className="w-5 h-5 text-cyan-400" />
 
@@ -325,13 +315,11 @@ const [indicesError, setIndicesError] = useState("");
 
           {/* Suggested questions */}
           <div className="mt-5">
-
             <p className="text-xs text-slate-500 uppercase tracking-wider mb-3">
               Try asking
             </p>
 
             <div className="flex flex-wrap gap-3">
-
               {[
                 "What major changes occurred?",
                 "Did vegetation increase or decrease?",
@@ -346,9 +334,7 @@ const [indicesError, setIndicesError] = useState("");
                   {item}
                 </button>
               ))}
-
             </div>
-
           </div>
 
           {/* Compare Button */}
@@ -366,11 +352,10 @@ const [indicesError, setIndicesError] = useState("");
               </>
             )}
           </button>
-
         </div>
+
         {/* Remote Sensing Analysis */}
         <section className="mt-8 bg-[#0b1224] border border-slate-800 rounded-2xl p-6">
-
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 rounded-lg bg-blue-500/10">
               <BarChart3 className="w-5 h-5 text-blue-400" />
@@ -389,7 +374,6 @@ const [indicesError, setIndicesError] = useState("");
 
           {/* Location and Date */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-
             <div>
               <label className="block mb-2 text-sm text-slate-300">
                 Latitude
@@ -443,7 +427,6 @@ const [indicesError, setIndicesError] = useState("");
                 className="w-full bg-[#020617] border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-400"
               />
             </div>
-
           </div>
 
           {/* Calculate Button */}
@@ -475,13 +458,11 @@ const [indicesError, setIndicesError] = useState("");
           {/* Results */}
           {indices && (
             <div className="mt-6">
-
               <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">
                 Satellite Indicators
               </h3>
 
               <div className="grid gap-4 md:grid-cols-3">
-
                 {/* NDVI */}
                 <div className="p-5 rounded-xl border border-green-500/20 bg-green-500/5">
                   <p className="text-sm text-slate-400">
@@ -526,7 +507,6 @@ const [indicesError, setIndicesError] = useState("");
                     Built-up area indicator
                   </p>
                 </div>
-
               </div>
 
               {/* Scientific Note */}
@@ -538,15 +518,13 @@ const [indicesError, setIndicesError] = useState("");
                   directly used to calculate these indices.
                 </p>
               </div>
-
             </div>
           )}
-
         </section>
+
         {/* Answer */}
         {answer && (
           <div className="mt-8 bg-[#0b1224] border border-cyan-400/20 rounded-2xl p-7">
-
             <div className="flex items-center gap-3 mb-5">
               <div className="p-2 rounded-lg bg-cyan-500/10">
                 <Sparkles className="w-5 h-5 text-cyan-400" />
@@ -566,19 +544,16 @@ const [indicesError, setIndicesError] = useState("");
             <div className="text-slate-300 leading-7 whitespace-pre-wrap">
               {answer}
             </div>
-
           </div>
         )}
-
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 mt-10">
+      <footer className="relative z-10 border-t border-slate-800 mt-10">
         <div className="max-w-7xl mx-auto px-6 py-6 text-center text-sm text-slate-600">
           © 2026 SatQuery AI · Interactive Remote-Sensing Intelligence
         </div>
       </footer>
-
     </div>
   );
 }

@@ -21,18 +21,46 @@ function AIAssistant() {
       return;
     }
 
+    // Get logged-in user information
+    const storedUser = localStorage.getItem("user");
+
+    if (!storedUser) {
+      alert("Please login to use the AI Assistant.");
+      return;
+    }
+
+    let user;
+
+    try {
+      user = JSON.parse(storedUser);
+    } catch (error) {
+      console.error("Invalid user data:", error);
+      alert("Please login again.");
+      return;
+    }
+
+    if (!user.id) {
+      alert("User information is missing. Please login again.");
+      return;
+    }
+
     setLoading(true);
     setAnswer("");
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/chat",
+        "https://satquery-ai-ep5o.onrender.com/api/chat",
         {
           question: question.trim(),
+          userId: user.id,
         }
       );
 
       setAnswer(response.data.answer);
+
+      // Clear question after successful request
+      setQuestion("");
+
     } catch (error) {
       console.error("AI Assistant error:", error);
 
@@ -46,13 +74,17 @@ function AIAssistant() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white">
-<SatelliteBackground video="ai-assitant.mp4" />
+    <div className="relative min-h-screen bg-transparent text-white">
+
+      {/* Satellite Background */}
+      <SatelliteBackground video="ai-assistant.mp4" />
+
       {/* Navbar */}
-      <nav className="border-b border-slate-800 bg-[#020617]">
+      <nav className="relative z-10 border-b border-slate-800 bg-[#020617]/95">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
           <Link to="/" className="flex items-center gap-3">
+
             <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-400/20">
               <Satellite className="w-6 h-6 text-cyan-400" />
             </div>
@@ -60,6 +92,7 @@ function AIAssistant() {
             <span className="text-xl font-bold">
               Sat<span className="text-cyan-400">Query</span> AI
             </span>
+
           </Link>
 
           <Link
@@ -74,7 +107,7 @@ function AIAssistant() {
       </nav>
 
       {/* Main */}
-      <main className="max-w-5xl mx-auto px-6 py-12">
+      <main className="relative z-10 max-w-5xl mx-auto px-6 py-12">
 
         {/* Header */}
         <div className="text-center mb-10">
@@ -95,7 +128,7 @@ function AIAssistant() {
         </div>
 
         {/* Question Box */}
-        <section className="bg-[#0b1224] border border-slate-800 rounded-2xl p-6">
+        <section className="bg-[#0b1224]/95 border border-slate-800 rounded-2xl p-6">
 
           <div className="flex items-center gap-3 mb-5">
 
@@ -151,7 +184,7 @@ function AIAssistant() {
 
         {/* AI Response */}
         {answer && (
-          <section className="mt-8 bg-[#0b1224] border border-cyan-400/20 rounded-2xl p-7">
+          <section className="relative z-10 mt-8 bg-[#0b1224]/95 border border-cyan-400/20 rounded-2xl p-7">
 
             <div className="flex items-center gap-3 mb-5">
 
@@ -181,7 +214,7 @@ function AIAssistant() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 mt-10">
+      <footer className="relative z-10 border-t border-slate-800 mt-10 bg-[#020617]/80">
         <div className="max-w-7xl mx-auto px-6 py-6 text-center text-sm text-slate-600">
           © 2026 SatQuery AI · Interactive Remote-Sensing Intelligence
         </div>

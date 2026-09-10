@@ -1,6 +1,9 @@
 function SatelliteBackground({ video }) {
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden">
+    <div
+      className="fixed inset-0 overflow-hidden pointer-events-none"
+      style={{ zIndex: 0 }}
+    >
       <video
         autoPlay
         loop
@@ -9,16 +12,12 @@ function SatelliteBackground({ video }) {
         className="absolute inset-0 w-full h-full object-cover"
       >
         <source
-  src={`/satellitevideos/${video}`}
-  type="video/mp4"
-/>
+          src={`${import.meta.env.BASE_URL}satellitevideos/${video}`}
+          type="video/mp4"
+        />
       </video>
 
-      {/* Very subtle dark overlay */}
-      <div className="absolute inset-0 bg-black/35" />
-
-      {/* Subtle atmospheric gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-cyan-950/10 via-transparent to-purple-950/15" />
+      <div className="absolute inset-0 bg-black/60" />
     </div>
   );
 }

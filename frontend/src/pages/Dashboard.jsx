@@ -12,11 +12,12 @@ import {
 
 function Dashboard() {
   return (
-    <div className="min-h-screen bg-[#020617] text-white">
+    <div className="relative min-h-screen bg-transparent text-white">
+
       <SatelliteBackground video="Dashboard.mp4" />
 
       {/* Navbar */}
-      <nav className="border-b border-slate-800 bg-[#020617]/95">
+      <nav className="relative z-10 border-b border-slate-800 bg-[#020617]/95">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
           <Link to="/" className="flex items-center gap-3">
@@ -49,7 +50,7 @@ function Dashboard() {
       </nav>
 
       {/* Main */}
-      <main className="max-w-7xl mx-auto px-6 py-12">
+      <main className="relative z-10 max-w-7xl mx-auto px-6 py-12">
 
         {/* Welcome */}
         <section className="mb-12">
@@ -292,7 +293,7 @@ function Dashboard() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 mt-10">
+      <footer className="relative z-10 border-t border-slate-800 mt-10">
 
         <div className="max-w-7xl mx-auto px-6 py-6 text-center text-sm text-slate-600">
           © 2026 SatQuery AI · Interactive Remote-Sensing Intelligence
