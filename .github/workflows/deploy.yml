@@ -1,4 +1,3 @@
-.yml
 name: Deploy frontend to GitHub Pages
 
 on:
