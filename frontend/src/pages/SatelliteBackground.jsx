@@ -9,9 +9,9 @@ function SatelliteBackground({ video }) {
         className="absolute inset-0 w-full h-full object-cover"
       >
         <source
-          src={`/satellitevideos/${video}`}
-          type="video/mp4"
-        />
+  src={`/satellitevideos/${video}`}
+  type="video/mp4"
+/>
       </video>
 
       {/* Very subtle dark overlay */}

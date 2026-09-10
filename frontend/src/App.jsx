@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -11,7 +11,7 @@ import Profile from "./pages/profile";
 import AIAssistant from "./pages/AIAssistant";
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
 
         <Route path="/" element={<Home />} />
@@ -33,7 +33,8 @@ function App() {
         />
 
       </Routes>
-    </BrowserRouter>
+    
+    </HashRouter>
   );
 }
 
