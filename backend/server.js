@@ -102,6 +102,7 @@ Give a clear answer and mention uncertainty when something cannot be determined 
     });
   }
 });
+
 // Compare two satellite images
 app.post(
   "/api/compare",
@@ -110,10 +111,16 @@ app.post(
     { name: "image2", maxCount: 1 }
   ]),
   async (req, res) => {
+    let image1Path = null;
+    let image2Path = null;
+
     try {
       const image1 = req.files?.image1?.[0];
       const image2 = req.files?.image2?.[0];
-      const question = req.body.question;
+
+      const question =
+        req.body.question ||
+        "Compare these two satellite images and identify the major changes.";
 
       if (!image1 || !image2) {
         return res.status(400).json({
@@ -121,6 +128,9 @@ app.post(
           error: "Please upload both images."
         });
       }
+
+      image1Path = image1.path;
+      image2Path = image2.path;
 
       const imageData1 = fs
         .readFileSync(image1.path)
@@ -132,31 +142,44 @@ app.post(
 
       console.log("Sending two images to Gemini for comparison...");
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
+      let response = null;
+      let lastError = null;
 
-        contents: [
-          {
-            inlineData: {
-              mimeType: image1.mimetype,
-              data: imageData1
-            }
-          },
-          {
-            inlineData: {
-              mimeType: image2.mimetype,
-              data: imageData2
-            }
-          },
-          {
-            text: `You are SatQuery AI, an intelligent remote-sensing image comparison assistant.
+      // Retry temporary Gemini 503 errors
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          console.log(
+            `Gemini comparison attempt ${attempt}/3...`
+          );
 
-Compare Image 1 and Image 2 carefully.
+          response = await ai.models.generateContent({
+            model: "gemini-3.6-flash",
+
+            contents: [
+              {
+                inlineData: {
+                  mimeType: image1.mimetype,
+                  data: imageData1
+                }
+              },
+              {
+                inlineData: {
+                  mimeType: image2.mimetype,
+                  data: imageData2
+                }
+              },
+              {
+                text: `You are SatQuery AI, an intelligent remote-sensing image comparison assistant.
+
+Image 1 is the earlier/reference image.
+Image 2 is the later/comparison image.
+
+Compare both satellite images carefully.
 
 User question:
-${question || "Compare these two satellite images and identify the major changes."}
+${question}
 
-Analyze changes in:
+Analyze visually supported changes in:
 
 - Vegetation
 - Water bodies
@@ -169,25 +192,62 @@ Analyze changes in:
 
 Clearly explain:
 
-1. What changed between Image 1 and Image 2
-2. Where the change appears
+1. Major changes between Image 1 and Image 2
+2. Where the changes appear
 3. Whether vegetation increased or decreased
 4. Whether water presence increased or decreased
 5. Whether built-up areas increased or decreased
-6. Important observations
-7. Any uncertainty or limitation
+6. Other important observations
+7. Uncertainty or limitations
 
 Do not invent changes that cannot be visually supported.
 
 Give the final answer in a clear, structured format.`
+              }
+            ]
+          });
+
+          console.log("Gemini comparison response received.");
+
+          break;
+
+        } catch (error) {
+          lastError = error;
+
+          console.error(
+            `Gemini comparison attempt ${attempt} failed:`,
+            error.message
+          );
+
+          const errorText = String(
+            error.message || ""
+          ).toLowerCase();
+
+          const temporaryError =
+            errorText.includes("503") ||
+            errorText.includes("unavailable") ||
+            errorText.includes("high demand") ||
+            errorText.includes("temporarily");
+
+          if (!temporaryError || attempt === 3) {
+            throw error;
           }
-        ]
-      });
 
-      console.log("Gemini comparison response received.");
+          console.log(
+            `Gemini temporarily unavailable. Retrying in ${
+              attempt * 3
+            } seconds...`
+          );
 
-      fs.unlinkSync(image1.path);
-      fs.unlinkSync(image2.path);
+          await new Promise((resolve) =>
+            setTimeout(resolve, attempt * 3000)
+          );
+        }
+      }
+
+      if (!response) {
+        throw lastError || new Error("No response received from Gemini.");
+      }
 
       res.json({
         success: true,
@@ -195,15 +255,59 @@ Give the final answer in a clear, structured format.`
       });
 
     } catch (error) {
-      console.error("Gemini comparison error:", error);
+      console.error(
+        "Gemini comparison error:",
+        error
+      );
+
+      const errorText = String(
+        error.message || ""
+      ).toLowerCase();
+
+      if (
+        errorText.includes("503") ||
+        errorText.includes("unavailable") ||
+        errorText.includes("high demand")
+      ) {
+        return res.status(503).json({
+          success: false,
+          error:
+            "The AI comparison service is temporarily unavailable because the Gemini model is experiencing high demand. Please try again in a moment."
+        });
+      }
 
       res.status(500).json({
         success: false,
-        error: error.message
+        error:
+          "Unable to compare the images. Please try again."
       });
+
+    } finally {
+      // Delete temporary uploaded files
+      try {
+        if (
+          image1Path &&
+          fs.existsSync(image1Path)
+        ) {
+          fs.unlinkSync(image1Path);
+        }
+
+        if (
+          image2Path &&
+          fs.existsSync(image2Path)
+        ) {
+          fs.unlinkSync(image2Path);
+        }
+      } catch (cleanupError) {
+        console.error(
+          "Temporary file cleanup error:",
+          cleanupError
+        );
+      }
     }
   }
 );
+
 app.get("/api/indices", async (req, res) => {
   try {
     const lat = Number(req.query.lat);
@@ -479,6 +583,197 @@ ${question}`,
     res.status(500).json({
       success: false,
       error: error.message || "Unable to generate AI response.",
+    });
+  }
+});
+app.get("/api/dataset/scenes", async (req, res) => {
+  try {
+    const fs = await import("fs/promises");
+    const path = await import("path");
+    const { fileURLToPath } = await import("url");
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+
+    const scenesPath = path.join(
+      __dirname,
+      "SatQuery_Dataset",
+      "scenes"
+    );
+
+    const sceneFolders = await fs.readdir(scenesPath, {
+      withFileTypes: true
+    });
+
+    const scenes = [];
+
+    for (const folder of sceneFolders) {
+      if (!folder.isDirectory()) continue;
+
+      const metadataPath = path.join(
+        scenesPath,
+        folder.name,
+        "metadata.json"
+      );
+
+      try {
+        const metadata = JSON.parse(
+          await fs.readFile(metadataPath, "utf-8")
+        );
+
+        scenes.push({
+          scene_id: folder.name,
+          metadata
+        });
+      } catch {
+        // Ignore folders without valid metadata
+      }
+    }
+
+    res.json({
+      success: true,
+      count: scenes.length,
+      scenes
+    });
+
+  } catch (error) {
+    console.error("Dataset scenes error:", error);
+
+    res.status(500).json({
+      success: false,
+      error: "Unable to load dataset scenes."
+    });
+  }
+});
+app.get("/api/dataset/analyze/:sceneId", async (req, res) => {
+  try {
+    const fs = await import("fs/promises");
+    const path = await import("path");
+    const { fileURLToPath } = await import("url");
+    const GeoTIFF = await import("geotiff");
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+
+    const sceneId = req.params.sceneId;
+
+    const scenePath = path.join(
+      __dirname,
+      "SatQuery_Dataset",
+      "scenes",
+      sceneId
+    );
+
+    const metadataPath = path.join(scenePath, "metadata.json");
+
+    const metadata = JSON.parse(
+      await fs.readFile(metadataPath, "utf-8")
+    );
+
+    async function readBand(filename) {
+      const filePath = path.join(scenePath, filename);
+
+      const tiff = await GeoTIFF.fromFile(filePath);
+      const image = await tiff.getImage();
+
+      const data = await image.readRasters({
+        interleave: true
+      });
+
+      return {
+        data: data,
+        width: image.getWidth(),
+        height: image.getHeight()
+      };
+    }
+
+    const green = await readBand("B03.tif");
+    const red = await readBand("B04.tif");
+    const nir = await readBand("B08.tif");
+    const swir = await readBand("B11.tif");
+
+    const pixelCount = green.data.length;
+
+    const ndvi = new Array(pixelCount);
+    const ndwi = new Array(pixelCount);
+    const ndbi = new Array(pixelCount);
+
+    for (let i = 0; i < pixelCount; i++) {
+      const g = Number(green.data[i]);
+      const r = Number(red.data[i]);
+      const n = Number(nir.data[i]);
+      const s = Number(swir.data[i]);
+
+      ndvi[i] =
+        n + r !== 0
+          ? (n - r) / (n + r)
+          : 0;
+
+      ndwi[i] =
+        g + n !== 0
+          ? (g - n) / (g + n)
+          : 0;
+
+      ndbi[i] =
+        s + n !== 0
+          ? (s - n) / (s + n)
+          : 0;
+    }
+
+    function statistics(values) {
+      const valid = values.filter(Number.isFinite);
+
+      const min = Math.min(...valid);
+      const max = Math.max(...valid);
+
+      const mean =
+        valid.reduce((sum, value) => sum + value, 0) /
+        valid.length;
+
+      return {
+        min,
+        max,
+        mean
+      };
+    }
+
+    res.json({
+      success: true,
+
+      scene: {
+        id: sceneId,
+        metadata
+      },
+
+      dimensions: {
+        width: green.width,
+        height: green.height
+      },
+
+      indices: {
+        NDVI: {
+          statistics: statistics(ndvi),
+          values: ndvi
+        },
+
+        NDWI: {
+          statistics: statistics(ndwi),
+          values: ndwi
+        },
+
+        NDBI: {
+          statistics: statistics(ndbi),
+          values: ndbi
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error("Dataset analysis error:", error);
+
+    res.status(500).json({
+      success: false,
+      error: error.message || "Dataset analysis failed."
     });
   }
 });

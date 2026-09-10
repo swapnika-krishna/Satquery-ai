@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import SatelliteBackground from "./SatelliteBackground";
 import {
@@ -26,6 +26,29 @@ const [endDate, setEndDate] = useState("2024-02-01");
 const [indices, setIndices] = useState(null);
 const [indicesLoading, setIndicesLoading] = useState(false);
 const [indicesError, setIndicesError] = useState("");
+const [datasetScenes, setDatasetScenes] = useState([]);
+const [selectedScene, setSelectedScene] = useState("");
+const [datasetResult, setDatasetResult] = useState(null);
+const [datasetLoading, setDatasetLoading] = useState(false);
+const [datasetError, setDatasetError] = useState("");
+useEffect(() => {
+  const loadDatasetScenes = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5000/api/dataset/scenes"
+      );
+
+      if (response.data.success) {
+        setDatasetScenes(response.data.scenes);
+      }
+    } catch (error) {
+      console.error("Dataset loading error:", error);
+      setDatasetError("Unable to load dataset scenes.");
+    }
+  };
+
+  loadDatasetScenes();
+}, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -110,6 +133,39 @@ const handleRemoteSensing = async () => {
     );
   } finally {
     setIndicesLoading(false);
+  }
+};
+const handleDatasetAnalysis = async () => {
+  if (!selectedScene) {
+    setDatasetError("Please select a dataset scene.");
+    return;
+  }
+
+  setDatasetLoading(true);
+  setDatasetResult(null);
+  setDatasetError("");
+
+  try {
+    const response = await axios.get(
+      `http://localhost:5000/api/dataset/analyze/${selectedScene}`
+    );
+
+    if (response.data.success) {
+      setDatasetResult(response.data);
+    } else {
+      setDatasetError(
+        response.data.error || "Dataset analysis failed."
+      );
+    }
+  } catch (error) {
+    console.error("Dataset analysis error:", error);
+
+    setDatasetError(
+      error.response?.data?.error ||
+        "Unable to analyze the selected dataset scene."
+    );
+  } finally {
+    setDatasetLoading(false);
   }
 };
   const suggestedQuestions = [
@@ -423,7 +479,197 @@ const handleRemoteSensing = async () => {
     </div>
 
   </div>
+  {/* Local Satellite Dataset */}
+  <div className="mt-8 border-t border-slate-800 pt-6">
 
+    <div className="mb-5">
+      <h4 className="text-lg font-semibold text-white">
+        Local Satellite Dataset
+      </h4>
+
+      <p className="mt-1 text-sm text-slate-500">
+        Analyze multispectral satellite bands from the SatQuery AI dataset.
+      </p>
+    </div>
+
+    <div className="grid gap-4 md:grid-cols-[1fr_auto]">
+
+      {/* Scene Selector */}
+      <div>
+        <label className="mb-2 block text-sm font-medium text-slate-300">
+          Select Satellite Scene
+        </label>
+
+        <select
+          value={selectedScene}
+          onChange={(e) => {
+            setSelectedScene(e.target.value);
+            setDatasetResult(null);
+            setDatasetError("");
+          }}
+          className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-500"
+        >
+          <option value="">
+            Select a scene
+          </option>
+
+          {datasetScenes.map((scene) => (
+            <option
+              key={scene.scene_id}
+              value={scene.scene_id}
+            >
+              {scene.scene_id}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Dataset Analyze Button */}
+      <div className="flex items-end">
+        <button
+          onClick={handleDatasetAnalysis}
+          disabled={datasetLoading}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-500 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50 md:w-auto"
+        >
+          {datasetLoading ? (
+            <>
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
+              Analyzing...
+            </>
+          ) : (
+            <>
+              <BarChart3 size={18} />
+              Analyze Dataset
+            </>
+          )}
+        </button>
+      </div>
+
+    </div>
+
+    {/* Dataset Error */}
+    {datasetError && (
+      <div className="mt-4 rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-400">
+        {datasetError}
+      </div>
+    )}
+
+    {/* Dataset Results */}
+    {datasetResult && (
+      <div className="mt-6">
+
+        <div className="mb-4 flex items-center justify-between">
+          <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
+            Dataset Analysis Results
+          </h4>
+
+          <span className="rounded-lg border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-xs text-cyan-400">
+            {datasetResult.scene.id}
+          </span>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+
+          {/* NDVI */}
+          <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-5">
+            <p className="text-sm text-slate-400">
+              NDVI
+            </p>
+
+            <p className="mt-2 text-3xl font-bold text-green-400">
+              {Number(
+                datasetResult.indices.NDVI.statistics.mean
+              ).toFixed(4)}
+            </p>
+
+            <p className="mt-2 text-xs text-slate-500">
+              Vegetation indicator
+            </p>
+
+            <div className="mt-4 text-xs text-slate-500">
+              Range:{" "}
+              {Number(
+                datasetResult.indices.NDVI.statistics.min
+              ).toFixed(4)}
+              {" "}to{" "}
+              {Number(
+                datasetResult.indices.NDVI.statistics.max
+              ).toFixed(4)}
+            </div>
+          </div>
+
+          {/* NDWI */}
+          <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-5">
+            <p className="text-sm text-slate-400">
+              NDWI
+            </p>
+
+            <p className="mt-2 text-3xl font-bold text-blue-400">
+              {Number(
+                datasetResult.indices.NDWI.statistics.mean
+              ).toFixed(4)}
+            </p>
+
+            <p className="mt-2 text-xs text-slate-500">
+              Water indicator
+            </p>
+
+            <div className="mt-4 text-xs text-slate-500">
+              Range:{" "}
+              {Number(
+                datasetResult.indices.NDWI.statistics.min
+              ).toFixed(4)}
+              {" "}to{" "}
+              {Number(
+                datasetResult.indices.NDWI.statistics.max
+              ).toFixed(4)}
+            </div>
+          </div>
+
+          {/* NDBI */}
+          <div className="rounded-xl border border-orange-500/20 bg-orange-500/5 p-5">
+            <p className="text-sm text-slate-400">
+              NDBI
+            </p>
+
+            <p className="mt-2 text-3xl font-bold text-orange-400">
+              {Number(
+                datasetResult.indices.NDBI.statistics.mean
+              ).toFixed(4)}
+            </p>
+
+            <p className="mt-2 text-xs text-slate-500">
+              Built-up area indicator
+            </p>
+
+            <div className="mt-4 text-xs text-slate-500">
+              Range:{" "}
+              {Number(
+                datasetResult.indices.NDBI.statistics.min
+              ).toFixed(4)}
+              {" "}to{" "}
+              {Number(
+                datasetResult.indices.NDBI.statistics.max
+              ).toFixed(4)}
+            </div>
+          </div>
+
+        </div>
+
+        {/* Dataset Information */}
+        <div className="mt-5 rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+          <p className="text-xs leading-6 text-slate-500">
+            Indices are calculated dynamically from the scene's
+            B03 (Green), B04 (Red), B08 (NIR), and B11 (SWIR)
+            multispectral bands. The dataset scene is used as the
+            analysis source.
+          </p>
+        </div>
+
+      </div>
+    )}
+
+  </div>
   {/* Calculate Button */}
   <button
     onClick={handleRemoteSensing}
