@@ -39,7 +39,7 @@ function Register() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/register", {
+      const response = await fetch("https://satquery-ai-ep5o.onrender.com/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
