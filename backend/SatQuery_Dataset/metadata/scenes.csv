@@ -1,0 +1,17 @@
+scene_id,satellite,location_name,region,latitude,longitude,acquisition_date,cloud_percentage,crs,resolution_10m_bands,resolution_20m_bands,data_source,is_real_satellite_data
+scene_001,Sentinel-2,Guntur City,"Guntur District, Andhra Pradesh",16.3067,80.4365,2024-01-26,9.21,EPSG:4326,"B03,B04,B08",B11,synthetic_placeholder,False
+scene_002,Sentinel-2,Vijayawada,"NTR District, Andhra Pradesh",16.5062,80.648,2024-02-06,4.71,EPSG:4326,"B03,B04,B08",B11,synthetic_placeholder,False
+scene_003,Sentinel-2,Amaravati Capital Region,"Guntur District, Andhra Pradesh",16.5138,80.5185,2024-02-17,1.54,EPSG:4326,"B03,B04,B08",B11,synthetic_placeholder,False
+scene_004,Sentinel-2,Hyderabad (HITEC City),Telangana,17.4483,78.3915,2024-02-28,16.98,EPSG:4326,"B03,B04,B08",B11,synthetic_placeholder,False
+scene_005,Sentinel-2,Visakhapatnam Coast,"Visakhapatnam District, Andhra Pradesh",17.6868,83.2185,2024-03-10,14.49,EPSG:4326,"B03,B04,B08",B11,synthetic_placeholder,False
+scene_006,Sentinel-2,Krishna Delta,"Krishna District, Andhra Pradesh",16.1667,81.1333,2024-03-21,9.69,EPSG:4326,"B03,B04,B08",B11,synthetic_placeholder,False
+scene_007,Sentinel-2,Kakinada Coastal Belt,"East Godavari District, Andhra Pradesh",16.9891,82.2475,2024-04-01,11.25,EPSG:4326,"B03,B04,B08",B11,synthetic_placeholder,False
+scene_008,Sentinel-2,Nellore,"SPSR Nellore District, Andhra Pradesh",14.4426,79.9865,2024-04-12,5.89,EPSG:4326,"B03,B04,B08",B11,synthetic_placeholder,False
+scene_009,Sentinel-2,Warangal,Telangana,17.9689,79.5941,2024-04-23,15.66,EPSG:4326,"B03,B04,B08",B11,synthetic_placeholder,False
+scene_010,Sentinel-2,Nizamabad,Telangana,18.6725,78.0941,2024-05-04,17.21,EPSG:4326,"B03,B04,B08",B11,synthetic_placeholder,False
+scene_011,Sentinel-2,Tirupati,"Chittoor District, Andhra Pradesh",13.6288,79.4192,2024-05-15,2.31,EPSG:4326,"B03,B04,B08",B11,synthetic_placeholder,False
+scene_012,Sentinel-2,Rajahmundry,"East Godavari District, Andhra Pradesh",17.0005,81.804,2024-05-26,4.51,EPSG:4326,"B03,B04,B08",B11,synthetic_placeholder,False
+scene_013,Sentinel-2,Karimnagar,Telangana,18.4386,79.1288,2024-06-06,15.57,EPSG:4326,"B03,B04,B08",B11,synthetic_placeholder,False
+scene_014,Sentinel-2,Ongole,"Prakasam District, Andhra Pradesh",15.5057,80.0499,2024-06-17,14.96,EPSG:4326,"B03,B04,B08",B11,synthetic_placeholder,False
+scene_015,Sentinel-2,Machilipatnam,"Krishna District, Andhra Pradesh",16.1875,81.1389,2024-06-28,12.47,EPSG:4326,"B03,B04,B08",B11,synthetic_placeholder,False
+scene_016,Sentinel-2,Khammam,Telangana,17.2473,80.1514,2024-07-09,10.2,EPSG:4326,"B03,B04,B08",B11,synthetic_placeholder,False

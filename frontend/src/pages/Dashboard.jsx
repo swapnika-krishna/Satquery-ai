@@ -1,18 +1,19 @@
 import { Link } from "react-router-dom";
+import SatelliteBackground from "./SatelliteBackground";
 import {
   Satellite,
   ImageIcon,
   GitCompare,
-  BarChart3,
   History,
   ArrowRight,
   Sparkles,
-  Map,
+  Bot,
 } from "lucide-react";
 
 function Dashboard() {
   return (
     <div className="min-h-screen bg-[#020617] text-white">
+      <SatelliteBackground video="Dashboard.mp4" />
 
       {/* Navbar */}
       <nav className="border-b border-slate-800 bg-[#020617]/95">
@@ -59,7 +60,7 @@ function Dashboard() {
             </div>
 
             <span className="text-cyan-400 text-sm font-medium">
-              Remote Sensing Intelligence
+              AI-Powered Remote Sensing Platform
             </span>
           </div>
 
@@ -68,8 +69,8 @@ function Dashboard() {
           </h1>
 
           <p className="text-slate-400 max-w-2xl text-lg">
-            Analyze satellite imagery, compare images, and explore
-            remote-sensing information using AI and satellite data.
+            Analyze satellite imagery, compare changes, perform remote-sensing
+            analysis, and ask questions using AI-powered intelligence.
           </p>
 
         </section>
@@ -80,7 +81,7 @@ function Dashboard() {
           {/* Image Analysis */}
           <Link
             to="/analyze"
-            className="group bg-[#0b1224] border border-slate-800 rounded-2xl p-7 hover:border-cyan-400/40 transition"
+            className="group bg-[#0b1224] border border-slate-800 rounded-2xl p-7 hover:border-cyan-400/40 hover:bg-[#0d162b] transition"
           >
             <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-6">
               <ImageIcon className="w-6 h-6 text-cyan-400" />
@@ -91,8 +92,8 @@ function Dashboard() {
             </h2>
 
             <p className="text-slate-400 text-sm leading-6">
-              Upload a satellite image and ask natural-language questions
-              about vegetation, water, buildings, roads and land cover.
+              Upload a satellite image, ask natural-language questions, and
+              perform AI and remote-sensing analysis.
             </p>
 
             <div className="mt-6 flex items-center gap-2 text-cyan-400 text-sm font-medium">
@@ -104,7 +105,7 @@ function Dashboard() {
           {/* Image Comparison */}
           <Link
             to="/compare"
-            className="group bg-[#0b1224] border border-slate-800 rounded-2xl p-7 hover:border-purple-400/40 transition"
+            className="group bg-[#0b1224] border border-slate-800 rounded-2xl p-7 hover:border-purple-400/40 hover:bg-[#0d162b] transition"
           >
             <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-6">
               <GitCompare className="w-6 h-6 text-purple-400" />
@@ -115,8 +116,8 @@ function Dashboard() {
             </h2>
 
             <p className="text-slate-400 text-sm leading-6">
-              Compare two satellite images and identify changes in
-              vegetation, water bodies, buildings, roads and urban areas.
+              Compare two satellite images, detect changes, and combine AI
+              analysis with remote-sensing indicators.
             </p>
 
             <div className="mt-6 flex items-center gap-2 text-purple-400 text-sm font-medium">
@@ -125,26 +126,26 @@ function Dashboard() {
             </div>
           </Link>
 
-          {/* Remote Sensing */}
+          {/* AI Assistant */}
           <Link
-            to="/remote-sensing"
-            className="group bg-[#0b1224] border border-slate-800 rounded-2xl p-7 hover:border-blue-400/40 transition"
+            to="/ai-assistant"
+            className="group bg-[#0b1224] border border-slate-800 rounded-2xl p-7 hover:border-blue-400/40 hover:bg-[#0d162b] transition"
           >
             <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-6">
-              <BarChart3 className="w-6 h-6 text-blue-400" />
+              <Bot className="w-6 h-6 text-blue-400" />
             </div>
 
             <h2 className="text-xl font-semibold mb-3">
-              Remote Sensing
+              AI Assistant
             </h2>
 
             <p className="text-slate-400 text-sm leading-6">
-              Explore satellite-derived NDVI, NDWI and NDBI values using
-              Google Earth Engine.
+              Ask questions about remote sensing, satellites, Earth
+              observation, and geospatial concepts without uploading an image.
             </p>
 
             <div className="mt-6 flex items-center gap-2 text-blue-400 text-sm font-medium">
-              Explore Indices
+              Ask AI
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />
             </div>
           </Link>
@@ -184,21 +185,21 @@ function Dashboard() {
               <ArrowRight className="w-5 h-5 text-slate-500" />
             </Link>
 
-            {/* Satellite Intelligence */}
+            {/* AI + Earth Engine */}
             <div className="flex items-center justify-between bg-[#0b1224] border border-slate-800 rounded-xl p-5">
 
               <div className="flex items-center gap-4">
                 <div className="p-3 rounded-lg bg-slate-800">
-                  <Map className="w-5 h-5 text-slate-300" />
+                  <Satellite className="w-5 h-5 text-slate-300" />
                 </div>
 
                 <div>
                   <h3 className="font-medium">
-                    Satellite Intelligence
+                    AI + Earth Engine
                   </h3>
 
                   <p className="text-sm text-slate-500">
-                    AI + Earth Engine analysis
+                    Vision AI and satellite intelligence
                   </p>
                 </div>
               </div>
@@ -221,7 +222,8 @@ function Dashboard() {
           </h2>
 
           <p className="text-slate-400 mb-8">
-            Turn satellite imagery into understandable insights.
+            Turn satellite imagery and natural-language questions into
+            meaningful Earth-observation insights.
           </p>
 
           <div className="grid md:grid-cols-4 gap-6">
@@ -232,11 +234,11 @@ function Dashboard() {
               </div>
 
               <h3 className="font-medium mb-2">
-                Upload
+                Upload or Ask
               </h3>
 
               <p className="text-sm text-slate-500">
-                Upload satellite imagery.
+                Upload imagery or ask the AI Assistant a question.
               </p>
             </div>
 
@@ -246,11 +248,11 @@ function Dashboard() {
               </div>
 
               <h3 className="font-medium mb-2">
-                Ask
+                Understand
               </h3>
 
               <p className="text-sm text-slate-500">
-                Ask questions in natural language.
+                AI interprets the image or understands the question.
               </p>
             </div>
 
@@ -264,7 +266,7 @@ function Dashboard() {
               </h3>
 
               <p className="text-sm text-slate-500">
-                AI analyzes the imagery.
+                Apply visual AI and satellite-derived remote-sensing analysis.
               </p>
             </div>
 
@@ -274,11 +276,12 @@ function Dashboard() {
               </div>
 
               <h3 className="font-medium mb-2">
-                Understand
+                Get Insights
               </h3>
 
               <p className="text-sm text-slate-500">
-                Get meaningful remote-sensing insights.
+                Receive understandable, evidence-based Earth-observation
+                insights.
               </p>
             </div>
 

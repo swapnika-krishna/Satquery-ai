@@ -1,0 +1,15 @@
+# Core geospatial / raster I/O
+rasterio>=1.3.9
+numpy>=1.26
+
+# STAC search + real Sentinel-2 access (used by download_dataset.py)
+pystac-client>=0.8.3
+planetary-computer>=1.0.0
+requests>=2.31
+
+# Indices, stats, tabular metadata
+pandas>=2.2
+
+# Heatmap / preview image generation
+matplotlib>=3.8
+Pillow>=10.2

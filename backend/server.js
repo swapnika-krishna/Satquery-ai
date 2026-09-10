@@ -206,11 +206,41 @@ Give the final answer in a clear, structured format.`
 );
 app.get("/api/indices", async (req, res) => {
   try {
-    const lat = parseFloat(req.query.lat) || 16.0;
-    const lon = parseFloat(req.query.lon) || 80.0;
+    const lat = Number(req.query.lat);
+    const lon = Number(req.query.lon);
 
-    const startDate = req.query.start || "2024-01-01";
-    const endDate = req.query.end || "2024-02-01";
+    const startDate = req.query.start;
+    const endDate = req.query.end;
+
+    // Validate location
+    if (
+      !Number.isFinite(lat) ||
+      !Number.isFinite(lon) ||
+      lat < -90 ||
+      lat > 90 ||
+      lon < -180 ||
+      lon > 180
+    ) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid latitude or longitude."
+      });
+    }
+
+    // Validate dates
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        success: false,
+        error: "Start date and end date are required."
+      });
+    }
+
+    if (new Date(startDate) >= new Date(endDate)) {
+      return res.status(400).json({
+        success: false,
+        error: "End date must be after start date."
+      });
+    }
 
     const point = ee.Geometry.Point([lon, lat]);
 
@@ -223,16 +253,38 @@ app.get("/api/indices", async (req, res) => {
         ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", 20)
       );
 
+    // Check whether satellite images exist
+    const imageCount = await new Promise((resolve, reject) => {
+      collection.size().evaluate((count, error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(count);
+        }
+      });
+    });
+
+    if (!imageCount || imageCount === 0) {
+      return res.status(404).json({
+        success: false,
+        error:
+          "No suitable Sentinel-2 satellite images were found for this location and date range. Try another date range."
+      });
+    }
+
     const image = collection.median();
 
+    // NDVI = vegetation
     const ndvi = image
       .normalizedDifference(["B8", "B4"])
       .rename("NDVI");
 
+    // NDWI = water
     const ndwi = image
       .normalizedDifference(["B3", "B8"])
       .rename("NDWI");
 
+    // NDBI = built-up areas
     const ndbi = image
       .normalizedDifference(["B11", "B8"])
       .rename("NDBI");
@@ -269,6 +321,8 @@ app.get("/api/indices", async (req, res) => {
         end: endDate
       },
 
+      imageCount: imageCount,
+
       indices: result
     });
 
@@ -277,7 +331,7 @@ app.get("/api/indices", async (req, res) => {
 
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message || "Earth Engine analysis failed."
     });
   }
 });
@@ -380,6 +434,51 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Login failed. Please try again.",
+    });
+  }
+});
+// Text-only AI Assistant
+app.post("/api/chat", async (req, res) => {
+  try {
+    const { question } = req.body;
+
+    if (!question || !question.trim()) {
+      return res.status(400).json({
+        success: false,
+        error: "Question is required.",
+      });
+    }
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3.6-flash",
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `You are SatQuery AI, an intelligent assistant specializing in remote sensing, satellite imagery, Earth observation, geospatial analysis, and artificial intelligence.
+
+Answer the user's question clearly and accurately.
+
+User question:
+${question}`,
+            },
+          ],
+        },
+      ],
+    });
+
+    res.json({
+      success: true,
+      answer: response.text,
+    });
+
+  } catch (error) {
+    console.error("Chat error:", error);
+
+    res.status(500).json({
+      success: false,
+      error: error.message || "Unable to generate AI response.",
     });
   }
 });

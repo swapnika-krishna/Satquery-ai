@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import SatelliteBackground from "./SatelliteBackground";
 import {
   Satellite,
   Eye,
@@ -67,7 +68,7 @@ function Register() {
 
   return (
     <div className="min-h-screen bg-[#020617] text-white flex items-center justify-center px-6 py-10">
-
+<SatelliteBackground video="login.mp4" />
       {/* Background */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.12),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.10),transparent_35%)]" />
 

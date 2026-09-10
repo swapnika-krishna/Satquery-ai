@@ -9,11 +9,12 @@ import {
   Globe2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import SatelliteBackground from "./SatelliteBackground";
 
 function Home() {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-
+<SatelliteBackground video="Home.mp4" />
       {/* Navbar */}
       <nav className="border-b border-slate-800 bg-slate-950/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">

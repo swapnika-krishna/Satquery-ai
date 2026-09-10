@@ -6,9 +6,9 @@ import Analyze from "./pages/Analyze";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Compare from "./pages/Compare";
-import RemoteSensing from "./pages/RemoteSensing";
 import History from "./pages/History";
 import Profile from "./pages/profile";
+import AIAssistant from "./pages/AIAssistant";
 function App() {
   return (
     <BrowserRouter>
@@ -22,9 +22,10 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/compare" element={<Compare />} />
-        <Route path="/remote-sensing"element={<RemoteSensing />}/>
+        
         <Route path="/history" element={<History />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/ai-assistant" element={<AIAssistant />} />
 
         <Route
           path="*"

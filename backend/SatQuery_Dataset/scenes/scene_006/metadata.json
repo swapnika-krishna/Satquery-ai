@@ -1,0 +1,66 @@
+{
+  "scene_id": "scene_006",
+  "satellite": "Sentinel-2",
+  "instrument": "MSI (MultiSpectral Instrument)",
+  "product_level": "L2A (Bottom-of-Atmosphere reflectance) - style",
+  "location_name": "Krishna Delta",
+  "region": "Krishna District, Andhra Pradesh",
+  "latitude": 16.1667,
+  "longitude": 81.1333,
+  "acquisition_date": "2024-03-21",
+  "cloud_percentage": 9.69,
+  "crs": "EPSG:4326",
+  "spatial_resolution_m": {
+    "B03": 10,
+    "B04": 10,
+    "B08": 10,
+    "B11": 20
+  },
+  "chip_size_px": 256,
+  "bands": {
+    "B03": {
+      "file": "B03.tif",
+      "description": "Green",
+      "wavelength_nm": 560,
+      "native_resolution_m": 10,
+      "dtype": "uint16",
+      "scale_factor": 0.0001,
+      "value_range_note": "Scaled reflectance (L2A style), 0-10000 ~ 0.0-1.0 reflectance"
+    },
+    "B04": {
+      "file": "B04.tif",
+      "description": "Red",
+      "wavelength_nm": 665,
+      "native_resolution_m": 10,
+      "dtype": "uint16",
+      "scale_factor": 0.0001,
+      "value_range_note": "Scaled reflectance (L2A style), 0-10000 ~ 0.0-1.0 reflectance"
+    },
+    "B08": {
+      "file": "B08.tif",
+      "description": "Near Infrared (NIR)",
+      "wavelength_nm": 842,
+      "native_resolution_m": 10,
+      "dtype": "uint16",
+      "scale_factor": 0.0001,
+      "value_range_note": "Scaled reflectance (L2A style), 0-10000 ~ 0.0-1.0 reflectance"
+    },
+    "B11": {
+      "file": "B11.tif",
+      "description": "Short-Wave Infrared (SWIR1)",
+      "wavelength_nm": 1610,
+      "native_resolution_m": 20,
+      "dtype": "uint16",
+      "scale_factor": 0.0001,
+      "value_range_note": "Scaled reflectance (L2A style), 0-10000 ~ 0.0-1.0 reflectance"
+    }
+  },
+  "indices_supported": [
+    "NDVI",
+    "NDWI",
+    "NDBI"
+  ],
+  "data_source": "synthetic_placeholder",
+  "is_real_satellite_data": false,
+  "notice": "Pixel values in this scene are SYNTHETICALLY GENERATED to mimic realistic Sentinel-2 L2A reflectance statistics for this land-cover type. They are placeholders for pipeline development/testing only and must not be treated as, or reported as, real satellite observations. Use download_dataset.py to fetch real Sentinel-2 scenes for this location."
+}

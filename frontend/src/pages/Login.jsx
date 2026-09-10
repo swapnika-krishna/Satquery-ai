@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Satellite, Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import SatelliteBackground from "./SatelliteBackground";
 
 function Login() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ function Login() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-
+<SatelliteBackground video="login.mp4" />
       {/* Top Bar */}
       <nav className="border-b border-slate-800 bg-slate-950/90">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
