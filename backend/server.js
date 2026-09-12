@@ -30,7 +30,7 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-setInterval(() => {}, 1000);
+setInterval(() => { }, 1000);
 
 app.use(cors());
 app.use(express.json());
@@ -278,8 +278,7 @@ Give the final answer in a clear, structured format.`
           }
 
           console.log(
-            `Gemini temporarily unavailable. Retrying in ${
-              attempt * 3
+            `Gemini temporarily unavailable. Retrying in ${attempt * 3
             } seconds...`
           );
 
@@ -523,17 +522,17 @@ app.get("/api/indices", async (req, res) => {
 
         })
 
-        .evaluate(
-          (data, error) => {
+          .evaluate(
+            (data, error) => {
 
-            if (error) {
-              reject(error);
-            } else {
-              resolve(data);
+              if (error) {
+                reject(error);
+              } else {
+                resolve(data);
+              }
+
             }
-
-          }
-        );
+          );
 
       }
     );
@@ -581,106 +580,100 @@ app.get("/api/indices", async (req, res) => {
    REGISTER
 ========================================================= */
 
+// User Registration
 app.post("/api/register", async (req, res) => {
-
   try {
-
-    const {
-      name,
-      email,
-      password
-    } = req.body;
+    let { name, email, password } = req.body;
 
     // Validate input
-
-    if (
-      !name ||
-      !email ||
-      !password
-    ) {
-
+    if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
-        message:
-          "All fields are required."
+        error: "Name, email and password are required."
       });
-
     }
 
-    // Check if email already exists
+    // Clean input
+    name = name.trim();
+    email = email.trim().toLowerCase();
 
-    const [existingUsers] =
-      await db.execute(
+    // Validate name
+    if (name.length < 2) {
+      return res.status(400).json({
+        success: false,
+        error: "Name must contain at least 2 characters."
+      });
+    }
 
-        "SELECT id FROM users WHERE email = ?",
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        [email]
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: "Please enter a valid email address."
+      });
+    }
 
-      );
+    // Validate password
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: "Password must contain at least 6 characters."
+      });
+    }
+
+    console.log("Registration request received for:", email);
+
+    // Check whether email already exists
+    const [existingUsers] = await db.execute(
+      "SELECT id FROM users WHERE email = ? LIMIT 1",
+      [email]
+    );
 
     if (existingUsers.length > 0) {
+      console.log("Registration rejected: email already exists:", email);
 
       return res.status(409).json({
         success: false,
-        message:
-          "An account with this email already exists."
+        error: "An account with this email already exists."
       });
-
     }
 
     // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const hashedPassword =
-      await bcrypt.hash(
-        password,
-        10
-      );
+    // Insert new user
+    const [result] = await db.execute(
+      `INSERT INTO users (name, email, password)
+       VALUES (?, ?, ?)`,
+      [name, email, hashedPassword]
+    );
 
-    // Create user
+    console.log(
+      "Registration successful. User ID:",
+      result.insertId
+    );
 
-    const [result] =
-      await db.execute(
-
-        "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
-
-        [
-          name,
-          email,
-          hashedPassword
-        ]
-
-      );
-
-    res.status(201).json({
-
+    return res.status(201).json({
       success: true,
-
-      message:
-        "Account created successfully.",
-
-      userId:
-        result.insertId
-
+      message: "Account created successfully.",
+      userId: result.insertId
     });
 
   } catch (error) {
+    console.error("========== REGISTRATION ERROR ==========");
+    console.error("Message:", error.message);
+    console.error("Code:", error.code);
+    console.error("SQL State:", error.sqlState);
+    console.error("Full error:", error);
+    console.error("========================================");
 
-    console.error(
-      "Registration error:",
-      error
-    );
-
-    res.status(500).json({
-
+    return res.status(500).json({
       success: false,
-
-      message:
-        "Registration failed. Please try again."
-
+      error: "Registration failed. Please try again."
     });
-
   }
-
 });
 
 
@@ -1267,19 +1260,19 @@ app.get(
         ndvi[i] =
           n + r !== 0
             ? (n - r) /
-              (n + r)
+            (n + r)
             : 0;
 
         ndwi[i] =
           g + n !== 0
             ? (g - n) /
-              (g + n)
+            (g + n)
             : 0;
 
         ndbi[i] =
           s + n !== 0
             ? (s - n) /
-              (s + n)
+            (s + n)
             : 0;
 
       }
